@@ -2,7 +2,7 @@
 
 
 Source code for manuscript "Selection of variables for multivariable models: opportunities and limitations in quantifying model stability by resampling"
-by Christine Wallisch, Daniela Dunkler, Geraldine Rauch, Riccardo de Bin, Georg Heinze, Statistics in Medicine 2020, DOI:10.1002/sim.8779.
+by Christine Wallisch, Daniela Dunkler, Geraldine Rauch, Riccardo de Bin, Georg Heinze, Statistics in Medicine 2020, (https://dx.doi.org/10.1002/sim.8779)(DOI:10.1002/sim.8779).
 
 For questions, comments or remarks about the code please contact Christine Wallisch (christine.wallisch@meduniwien.ac.at).
 
