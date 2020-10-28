@@ -7,7 +7,7 @@ by Christine Wallisch, Daniela Dunkler, Geraldine Rauch, Riccardo de Bin, Georg 
 For questions, comments or remarks about the code please post here or contact Christine Wallisch (christine.wallisch@meduniwien.ac.at).
 
 
-These are the proceeding steps to reproduce the results presented in the article:
+These are the necessary steps to reproduce the results presented in the article:
 
 Note: The simulation study was conducted on the Vienna Scientific Cluster. The code attached here has been modified to run on a single PC. Thus, results may be slightly different.
 
