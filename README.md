@@ -1,7 +1,7 @@
 # StabilityMeasures
 
 
-Source code for manuscript "Selection of variables for multivariable models: opportunities and limitations in quantifying model stability by resampling"
+Source code for manuscript _Selection of variables for multivariable models: opportunities and limitations in quantifying model stability by resampling_
 by Christine Wallisch, Daniela Dunkler, Geraldine Rauch, Riccardo de Bin, Georg Heinze, Statistics in Medicine 2020, https://dx.doi.org/10.1002/sim.8779.
 
 For questions, comments or remarks about the code please post here or contact Christine Wallisch (christine.wallisch@meduniwien.ac.at).
