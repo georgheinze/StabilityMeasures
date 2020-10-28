@@ -1,0 +1,136 @@
+---
+output:
+  word_document
+---
+  
+```{r, echo=F, warning=F, message=F}
+library(bootstrap)
+library(knitr)
+library(rmarkdown)
+
+source("function_beta.R")
+load("sim_results_beta.RData")
+load("sim_measures.RData")
+load("setup.RData")
+
+theta <- function(x){median(x, na.rm = T)}
+
+effect <- setup[1,3:ncol(setup)]!=0
+
+
+# function to compute Monte Carlo Errors (MCE) for all measures
+mce <- function(results_mat, meas_mat, method){
+  
+   # extract all betas obtained in a simulated data set ('true betas')
+  mat_tr <- results_mat[[paste0(method, "_betas")]][results_mat[[paste0(method, "_betas")]][,"bootstrap"]==0,names(effect)]
+  
+  # estimands for VIF and MSF
+  VIF_pop <- apply(mat_tr,2, function(x) mean(x!=0) )*100
+  msf_pop <-  sum(apply(mat_tr,1, function(x) identical(x!=0, effect)))/nrow(mat_tr) *100
+ 
+   
+   corr.mod <- function(object=results_mat, method2="bwAIC_betas"){
+     
+     mat <- object[[method2]][object[[method2]][,"bootstrap"]!=0,names(effect)]
+     correct <-  apply(mat,1, function(x) identical(x!=0, effect) )
+     
+    MSF<- aggregate(correct, by=list(object[[method2]][object[[method2]][,"bootstrap"]!=0,"bootstrap"]),
+            FUN=mean)
+  
+     return(MSF)
+   }
+
+  
+  # functions
+  theta <- function(x){median(x, na.rm = T)}
+  rmse <- function(x,y){sqrt(mean((x-y)^2))}
+  mad <- function(x, y){median(abs(x-y), na.rm = T)}
+  
+  
+  # calculate all MCEs
+
+  ## for VIF
+  mce_bif <- apply(meas_mat[[method]]$bif*100, 2, 
+                        function(x) jackknife(x, mean)$`jack.se`)[-1]
+  mce_max_bif <- max(mce_bif)
+  
+  mce_bif_rmse <- NULL
+    for(i in 2:18){
+    mce_bif_rmse[i-1] <-  jackknife(data.frame(meas_mat[[method]]$bif)[,i], 
+                                       rmse(x,VIF_pop[i]))$`jack.se`
+    } 
+  
+ apply(meas_mat[[method]]$bif*100, 2, 
+                             function(x) jackknife(x, mean)$`jack.se`)[-1]
+  
+  ## for MSF
+  msf <- corr.mod(results_mat, paste0(method,"_betas"))[,2]*100
+  mce_msf <-  jackknife(msf, mean)$`jack.se`
+  
+  mce_msf_rmse <-  jackknife(msf, function(x) rmse(x,msf_pop))$`jack.se`
+  
+  
+  ## for RCB
+  mce_rcb <- apply(meas_mat[[method]]$rcb, 2, function(x) jackknife(x, theta)$`jack.se`)[-1]
+  mce_max_rcb <- max(mce_rcb)
+
+    mce_rcb_mad <- NULL
+    for(i in 2:18){
+    mce_rcb_mad[i-1] <-  jackknife(data.frame(meas_mat[[method]]$rcb)[,i], 
+                                       function(x) mad(x,meas_mat[[method]]$rcb_pop[i]))$`jack.se`
+  }
+
+  ## for RMSDR
+  mce_rmsdr <- apply(meas_mat[[method]]$rmsdratio, 2, function(x) jackknife(x, theta)$`jack.se`)[-1]
+  mce_max_rmsdr <- max(mce_rmsdr)
+  
+    mce_rmsdr_mad <- NULL
+    for(i in 2:18){
+    mce_rmsdr_mad[i-1] <-  jackknife(data.frame(meas_mat[[method]]$rmsdratio)[,i], 
+                                      function(x) mad(x,meas_mat[[method]]$rmsdratio_pop[i]))$`jack.se`
+  } 
+ 
+  
+  out <- rbind("mean MSF"=c(mce_msf),
+               "RMSE of MSF"=c(mce_msf_rmse))
+
+  out_var <- rbind("mean VIF"=mce_bif, 
+                    "median RCB"=mce_rcb,
+                    "median RMSDR"=mce_rmsdr,
+                    "RMSE of VIF"=mce_bif_rmse,
+                    "MAD of RCB"=mce_rcb_mad,
+                    "MAD of RMSDR"=mce_rmsdr_mad)[,
+                      c("x11", "x5", "x6", "x3",  "x8", "x10","x4a", "x1",
+                                  "x2", "x4b", "x7", "x9a", "x9b", "x12", "x13", "x14", "x15")
+                    ]
+  
+  colnames(out_var) <- paste0("X",1:17)
+    
+  return(list("all"=round(out,3), round(out_var,2)))
+  
+}
+
+
+```
+
+
+#  BE with AIC and sample size 150
+
+## Bootstrap
+```{r, echo=F, warning=F, message=F}
+kable(mce(results_mat=results_boot[[1]], meas_mat=meas_boot[[1]], method="bwAIC"))
+```
+## Subsampling 0.5
+```{r, echo=F, warning=F, message=F}
+kable(mce(results_mat=results_sub50[[1]], meas_mat=meas_sub50[[1]], method="bwAIC"))
+```
+## Subsampling 0.632
+```{r, echo=F, warning=F, message=F}
+kable(mce(results_mat=results_sub63[[1]], meas_mat=meas_sub63[[1]], method="bwAIC"))
+```
+## Subsampling 0.8
+```{r, echo=F, warning=F, message=F}
+kable(mce(results_mat=results_sub80[[1]], meas_mat=meas_sub80[[1]], method="bwAIC"))
+```
+
+
